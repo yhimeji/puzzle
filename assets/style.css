@@ -1,0 +1,451 @@
+:root{
+  --bg-top:#1b1330;
+  --bg-bottom:#05030a;
+  --panel-bg:#221a3a;
+  --panel-border:#4a3b7a;
+  --text-main:#f3eefe;
+  --text-sub:#b9aee0;
+  --accent:#ffcf4d;
+  --hp-player:#4caf50;
+  --hp-player-low:#e53935;
+  --hp-enemy:#e53935;
+
+  --c0:#ff5252; --c0-d:#8c1a1a; /* red */
+  --c1:#42a5f5; --c1-d:#0d47a1; /* blue */
+  --c2:#66bb6a; --c2-d:#1b5e20; /* green */
+  --c3:#ffca28; --c3-d:#a86400; /* yellow */
+  --c4:#ab47bc; --c4-d:#4a148c; /* purple */
+  --c5:#ff7fb2; --c5-d:#a8225e; /* pink（回復） */
+
+  --line-glow-h:#42a5f5; /* 横一列消し：青 */
+  --line-glow-v:#ffd54f; /* 縦一列消し：黄 */
+}
+
+*{ box-sizing:border-box; }
+
+html,body{
+  margin:0;
+  padding:0;
+  height:100%;
+  background:linear-gradient(180deg,var(--bg-top),var(--bg-bottom));
+  color:var(--text-main);
+  font-family:"Hiragino Sans","Yu Gothic",system-ui,-apple-system,sans-serif;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;
+}
+
+#app{
+  max-width:480px;
+  margin:0 auto;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  padding:0 0 24px;
+}
+
+#topbar{
+  text-align:center;
+  padding:10px 0;
+  font-weight:bold;
+  letter-spacing:.05em;
+  color:var(--accent);
+  font-size:15px;
+  border-bottom:1px solid var(--panel-border);
+}
+
+.screen{
+  display:none;
+  flex:1;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  background-repeat:no-repeat;
+  background-size:100% auto;
+  background-position:center bottom;
+  image-rendering:pixelated;
+}
+.screen.active{ display:flex; }
+
+/* レトロ感を出すドット絵背景（画面ごとの世界観演出） */
+#screen-title{
+  background-image:
+    linear-gradient(rgba(10,6,18,.35), rgba(5,3,10,.78)),
+    url("images/backgrounds/town.svg");
+}
+
+.panel{
+  background:var(--panel-bg);
+  border:1px solid var(--panel-border);
+  border-radius:16px;
+  padding:24px 20px;
+  width:100%;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+.panel h1{ margin:0 0 12px; font-size:22px; color:var(--accent); }
+.panel h2{ margin:0 0 8px; font-size:20px; color:var(--accent); }
+.panel .desc{ font-size:13px; line-height:1.7; color:var(--text-sub); margin-bottom:16px; }
+.panel p{ font-size:13px; color:var(--text-sub); }
+
+.rule-list{
+  list-style:none;
+  padding:0;
+  margin:0 0 20px;
+  font-size:13px;
+  text-align:left;
+  background:rgba(0,0,0,.25);
+  border-radius:10px;
+  padding:12px 16px;
+}
+.rule-list li{ margin:4px 0; }
+
+.hidden{ display:none; }
+
+.score-box{
+  background:rgba(0,0,0,.25);
+  border-radius:10px;
+  padding:10px 16px;
+  margin:12px 0;
+  font-size:13px;
+}
+.score-box p{ margin:4px 0; color:var(--text-main); }
+.new-record{
+  color:var(--accent);
+  font-weight:bold;
+  animation: newRecordPop 900ms cubic-bezier(.2,.8,.2,1);
+}
+@keyframes newRecordPop{
+  0%{ transform:scale(0.5); opacity:0; }
+  40%{ transform:scale(1.15); opacity:1; }
+  100%{ transform:scale(1); opacity:1; }
+}
+
+.btn{
+  display:inline-block;
+  border:none;
+  border-radius:999px;
+  padding:12px 28px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+  margin:6px 4px 0;
+}
+.btn-main{
+  background:linear-gradient(180deg,#ffd873,var(--accent));
+  color:#3a2600;
+  box-shadow:0 4px 0 #a9791a;
+}
+.btn-main:active{ transform:translateY(2px); box-shadow:0 2px 0 #a9791a; }
+.btn-sub{
+  background:transparent;
+  color:var(--text-sub);
+  border:1px solid var(--panel-border);
+}
+
+/* ---- バトル画面 ---- */
+#screen-battle{ position:relative; width:100%; padding:12px; }
+
+#enemy-area{
+  width:100%;
+  text-align:center;
+  margin-bottom:10px;
+  padding:14px 10px 10px;
+  border-radius:14px;
+  border:1px solid var(--panel-border);
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:center;
+  image-rendering:pixelated;
+}
+#enemy-name{ font-size:14px; color:var(--text-sub); margin-bottom:4px; text-shadow:0 1px 3px rgba(0,0,0,.9); }
+
+/* ステージごとの敵背景（敵の後ろに表示。盤面より上のレイヤーなので隠れない） */
+#enemy-area.bg-stage-0{
+  background-image:
+    linear-gradient(rgba(10,6,18,.25), rgba(5,3,10,.55)),
+    url("images/backgrounds/grassland.svg");
+}
+#enemy-area.bg-stage-1{
+  background-image:
+    linear-gradient(rgba(10,6,18,.3), rgba(5,3,10,.6)),
+    url("images/backgrounds/castle.svg");
+}
+#enemy-area.bg-stage-2{
+  background-image:
+    linear-gradient(rgba(10,6,18,.25), rgba(5,3,10,.55)),
+    url("images/backgrounds/volcano.svg");
+}
+
+.enemy-sprite{
+  width:110px;
+  height:110px;
+  margin:0 auto 8px;
+  position:relative;
+  transition:transform .15s;
+}
+/* スライム・ウルフナイト・ドラゴンはすべてSVGドット絵スプライトを使用（画風統一） */
+.enemy-sprite.slime,
+.enemy-sprite.wolf,
+.enemy-sprite.dragon{
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.5));
+}
+.enemy-sprite.slime{ background-image:url("images/enemies/slime.svg"); }
+.enemy-sprite.wolf{ background-image:url("images/enemies/wolf-knight.svg"); }
+.enemy-sprite.dragon{ background-image:url("images/enemies/dragon-lizard.svg"); }
+
+.enemy-sprite.shake{ animation:shake .3s; }
+
+.hpbar-wrap{
+  position:relative;
+  width:100%;
+  height:18px;
+  background:rgba(0,0,0,.4);
+  border:1px solid var(--panel-border);
+  border-radius:999px;
+  overflow:hidden;
+}
+.hpbar-fill{
+  height:100%;
+  width:100%;
+  transition:width .35s ease-out, background-color .35s;
+}
+.hpbar-wrap.enemy .hpbar-fill{ background:var(--hp-enemy); }
+.hpbar-wrap.player .hpbar-fill{ background:var(--hp-player); }
+.hpbar-wrap.player .hpbar-fill.low{ background:var(--hp-player-low); }
+.hpbar-text{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:bold;
+  color:#fff;
+  text-shadow:0 1px 2px rgba(0,0,0,.6);
+}
+
+#player-area{ width:100%; margin:6px 0 4px; }
+.hpbar-label{ font-size:12px; color:var(--text-sub); margin-bottom:3px; }
+#player-area.shake{ animation:shake .3s; }
+
+#stage-label{
+  text-align:center;
+  font-size:12px;
+  color:var(--text-sub);
+  margin:6px 0 10px;
+}
+
+/* ---- 盤面 ---- */
+#board{
+  --cols:6;
+  --rows:5;
+  position:relative;
+  width:100%;
+  aspect-ratio: var(--cols) / var(--rows);
+  display:grid;
+  grid-template-columns:repeat(var(--cols),1fr);
+  grid-template-rows:repeat(var(--rows),1fr);
+  gap:2%;
+  background:rgba(0,0,0,.3);
+  border:1px solid var(--panel-border);
+  border-radius:12px;
+  padding:2%;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+.cell{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.orb{
+  position:relative;
+  width:86%;
+  height:86%;
+  border-radius:50%;
+  box-shadow:inset 0 -6px 8px rgba(0,0,0,.35), inset 0 4px 6px rgba(255,255,255,.35), 0 2px 4px rgba(0,0,0,.4);
+  transition:transform .12s, opacity .15s;
+  pointer-events:none;
+}
+.orb.c0{ background:radial-gradient(circle at 35% 28%, #ffb3b3, var(--c0) 55%, var(--c0-d) 100%); }
+.orb.c1{ background:radial-gradient(circle at 35% 28%, #bfe3ff, var(--c1) 55%, var(--c1-d) 100%); }
+.orb.c2{ background:radial-gradient(circle at 35% 28%, #c2f0c2, var(--c2) 55%, var(--c2-d) 100%); }
+.orb.c3{ background:radial-gradient(circle at 35% 28%, #fff0b3, var(--c3) 55%, var(--c3-d) 100%); }
+.orb.c4{ background:radial-gradient(circle at 35% 28%, #e6bdf2, var(--c4) 55%, var(--c4-d) 100%); }
+.orb.c5{ background:radial-gradient(circle at 35% 28%, #ffd6e8, var(--c5) 55%, var(--c5-d) 100%); }
+.orb.empty{ background:transparent; box-shadow:none; opacity:0; }
+
+/* オーブ中央のマーク（ドット絵アイコン）：色ごとに連想モチーフを表示 */
+.orb::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  margin:auto;
+  width:58%;
+  height:58%;
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.5));
+}
+.orb.c0::after{ background-image:url("images/marks/flame.svg"); }
+.orb.c1::after{ background-image:url("images/marks/water.svg"); }
+.orb.c2::after{ background-image:url("images/marks/tree.svg"); }
+.orb.c3::after{ background-image:url("images/marks/light.svg"); }
+.orb.c4::after{ background-image:url("images/marks/butterfly.svg"); }
+.orb.c5::after{ background-image:url("images/marks/heart.svg"); }
+.orb.empty::after{ content:none; }
+
+.orb.dragging-hidden{ opacity:0; }
+
+/* 消える瞬間、まず光ってから縮んで消える演出 */
+.orb.clearing{
+  animation: matchClear 380ms ease-out forwards;
+}
+@keyframes matchClear{
+  0%{
+    transform:scale(1);
+    box-shadow:inset 0 -6px 8px rgba(0,0,0,.35), inset 0 4px 6px rgba(255,255,255,.35), 0 2px 4px rgba(0,0,0,.4);
+    filter:brightness(1) saturate(1);
+    opacity:1;
+  }
+  35%{
+    transform:scale(1.35);
+    box-shadow:0 0 0 4px rgba(255,255,255,.95), 0 0 24px 10px rgba(255,255,255,.9);
+    filter:brightness(2.2) saturate(1.4);
+    opacity:1;
+  }
+  100%{
+    transform:scale(0.1);
+    box-shadow:0 0 0 0 rgba(255,255,255,0);
+    filter:brightness(2.4);
+    opacity:0;
+  }
+}
+
+/* 横一列消し：青く光ってから消える */
+.orb.clearing.clearing-line-h{
+  animation-name: matchClearLineH;
+}
+@keyframes matchClearLineH{
+  0%{
+    transform:scale(1);
+    box-shadow:0 0 0 0 var(--line-glow-h);
+    filter:brightness(1) saturate(1);
+    opacity:1;
+  }
+  35%{
+    transform:scale(1.35);
+    box-shadow:0 0 0 4px var(--line-glow-h), 0 0 26px 12px var(--line-glow-h);
+    filter:brightness(2.2) saturate(1.4);
+    opacity:1;
+  }
+  100%{
+    transform:scale(0.1);
+    box-shadow:0 0 0 0 rgba(66,165,245,0);
+    filter:brightness(2.4);
+    opacity:0;
+  }
+}
+
+/* 縦一列消し：黄色く光ってから消える */
+.orb.clearing.clearing-line-v{
+  animation-name: matchClearLineV;
+}
+@keyframes matchClearLineV{
+  0%{
+    transform:scale(1);
+    box-shadow:0 0 0 0 var(--line-glow-v);
+    filter:brightness(1) saturate(1);
+    opacity:1;
+  }
+  35%{
+    transform:scale(1.35);
+    box-shadow:0 0 0 4px var(--line-glow-v), 0 0 26px 12px var(--line-glow-v);
+    filter:brightness(2.2) saturate(1.4);
+    opacity:1;
+  }
+  100%{
+    transform:scale(0.1);
+    box-shadow:0 0 0 0 rgba(255,213,79,0);
+    filter:brightness(2.4);
+    opacity:0;
+  }
+}
+
+/* ドラッグ中、指/マウスに吸い付いて動く「持ち上げた」オーブ */
+.orb-ghost{
+  position:absolute;
+  left:0;
+  top:0;
+  z-index:6;
+  pointer-events:none;
+  will-change:transform;
+}
+
+/* 2連鎖以上の時に盤面中央に出す「〇combo」表示 */
+.combo-pop{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%) scale(0.4);
+  font-weight:900;
+  font-size:clamp(24px, 8vw, 34px);
+  color:var(--accent);
+  text-shadow:0 0 12px rgba(255,207,77,.9), 0 2px 6px rgba(0,0,0,.6);
+  letter-spacing:.03em;
+  pointer-events:none;
+  z-index:8;
+  white-space:nowrap;
+  animation: comboPop 800ms cubic-bezier(.2,.8,.2,1) forwards;
+}
+@keyframes comboPop{
+  0%{ transform:translate(-50%,-50%) scale(0.4); opacity:0; }
+  15%{ transform:translate(-50%,-50%) scale(1.2); opacity:1; }
+  30%{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+  78%{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+  100%{ transform:translate(-50%,-62%) scale(0.9); opacity:0; }
+}
+
+/* ---- ダメージポップアップ ---- */
+#popup-layer{ position:absolute; inset:0; pointer-events:none; }
+.dmg-pop{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  font-weight:bold;
+  font-size:20px;
+  text-shadow:0 2px 4px rgba(0,0,0,.6);
+  animation:floatUp 1s ease-out forwards;
+  white-space:nowrap;
+}
+.dmg-pop.enemy{ top:110px; color:#fff59d; }
+.dmg-pop.player{ top:170px; color:#ff8a80; }
+.dmg-pop.heal{ top:170px; color:#69f0ae; }
+
+@keyframes floatUp{
+  0%{ opacity:1; transform:translate(-50%,0); }
+  100%{ opacity:0; transform:translate(-50%,-40px); }
+}
+
+@keyframes shake{
+  0%,100%{ transform:translateX(0); }
+  20%{ transform:translateX(-6px); }
+  40%{ transform:translateX(6px); }
+  60%{ transform:translateX(-4px); }
+  80%{ transform:translateX(4px); }
+}
+
+@media (max-width:360px){
+  .panel h1{ font-size:19px; }
+  .btn{ padding:10px 20px; font-size:14px; }
+}

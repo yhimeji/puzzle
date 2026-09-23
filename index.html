@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>パズルバトル（仮）</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div id="app">
+
+  <header id="topbar">パズルバトル（仮）</header>
+
+  <!-- タイトル画面 -->
+  <section id="screen-title" class="screen active">
+    <div class="panel">
+      <h1>パズルバトル（仮）</h1>
+      <p class="desc">
+        同じ色のオーブを3つ以上つなげて消すと、画面上の敵にダメージを与えられる。<br>
+        敵は時間の経過とともに定期的に攻撃してくるので、攻撃される前に敵を倒そう。<br>
+        全部で3ステージ。
+      </p>
+      <ul class="rule-list">
+        <li>3つ消し：ダメージ100</li>
+        <li>4つ消し：ダメージ120</li>
+        <li>5つ消し：ダメージ140（以降つながる数に応じて+20ずつ増加）</li>
+        <li>十字（プラス）形に消すとダメージ2倍！</li>
+        <li>横一列・縦一列に消すと追加ダメージ+100（青・黄色に光る）</li>
+        <li>ピンクを消すと体力が回復（3つ50、以降+10ずつ増加）</li>
+      </ul>
+      <button id="btn-start" class="btn btn-main">スタート</button>
+    </div>
+  </section>
+
+  <!-- バトル画面 -->
+  <section id="screen-battle" class="screen">
+    <div id="enemy-area">
+      <div id="enemy-name">敵</div>
+      <div id="enemy-sprite" class="enemy-sprite slime"></div>
+      <div class="hpbar-wrap enemy">
+        <div id="enemy-hpbar" class="hpbar-fill"></div>
+        <span id="enemy-hp-text" class="hpbar-text">0 / 0</span>
+      </div>
+    </div>
+
+    <div id="player-area">
+      <div class="hpbar-label">自分の体力</div>
+      <div class="hpbar-wrap player">
+        <div id="player-hpbar" class="hpbar-fill"></div>
+        <span id="player-hp-text" class="hpbar-text">0 / 0</span>
+      </div>
+    </div>
+
+    <div id="stage-label"></div>
+
+    <div id="board"></div>
+
+    <div id="popup-layer"></div>
+  </section>
+
+  <!-- ステージクリア画面 -->
+  <section id="screen-clear" class="screen">
+    <div class="panel">
+      <h2 id="clear-title">ステージクリア！</h2>
+      <p>体力はそのまま次のステージへ引き継がれる。油断は禁物。</p>
+      <div class="score-box">
+        <p>今回のスコア：<span id="clear-score">0</span></p>
+        <p>ハイスコア：<span id="clear-highscore">0</span></p>
+        <p id="clear-newrecord" class="new-record hidden">✨ ハイスコア更新！</p>
+      </div>
+      <button id="btn-next" class="btn btn-main">次のステージへ</button>
+    </div>
+  </section>
+
+  <!-- ゲームオーバー画面 -->
+  <section id="screen-over" class="screen">
+    <div class="panel">
+      <h2>やられた…</h2>
+      <p>敵の攻撃に体力を削り切られてしまった。</p>
+      <button id="btn-retry" class="btn btn-main">最初からリトライ</button>
+      <button id="btn-title" class="btn btn-sub">タイトルへ戻る</button>
+    </div>
+  </section>
+
+  <!-- 全ステージクリア画面 -->
+  <section id="screen-win" class="screen">
+    <div class="panel">
+      <h2>オールクリア！</h2>
+      <p>3体の敵をすべて倒した。お疲れさま！</p>
+      <div class="score-box">
+        <p>今回のスコア：<span id="win-score">0</span></p>
+        <p>ハイスコア：<span id="win-highscore">0</span></p>
+        <p id="win-newrecord" class="new-record hidden">✨ ハイスコア更新！</p>
+      </div>
+      <button id="btn-again" class="btn btn-main">もう一度あそぶ</button>
+    </div>
+  </section>
+
+</div>
+<script src="assets/script.js" defer></script>
+</body>
+</html>
